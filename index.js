@@ -32,8 +32,15 @@ async function run() {
     const database = client.db('ToysDB')
     const haiku = database.collection('toys')
 
-    // post
+    // get/read
 
+    app.get('/toys', async(req, res) => {
+        const cursor = haiku.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+    
+    // post
     app.post('/toys', async(req, res) => {
        const toy = req.body
        const result = await haiku.insertOne(toy)
