@@ -59,7 +59,14 @@ async function run() {
       res.send(data)
      })
 
-   
+    // update
+
+    app.get('/toys/:id', async(req, res)=> {
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const toy = await haiku.findOne(query)
+      res.send(toy)
+    })
 
     // post
     app.post("/toys", async (req, res) => {
@@ -69,6 +76,24 @@ async function run() {
       res.send(result);
       //    console.log(toy);
     });
+
+    //put
+    app.put('/toys/:id', async(req, res) => {
+      const id = req.params.id
+      const toy = req.body
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert: true}
+      const updatedToy = {
+        $set: {
+          price: toy.name,
+          quantity: toy.quantity,
+          description: toy.description
+        }
+      }
+
+      const result = await haiku.updateOne(filter, updatedToy, options)
+      res.send(result)
+    })
 
     //delete
 
