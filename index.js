@@ -30,35 +30,47 @@ async function run() {
     const haiku = database.collection("toys");
 
     // get/read
-
     app.get("/toys", async (req, res) => {
       const cursor = haiku.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    app.get('/toys/:subCategory', async (req, res) => {
-      const category = await haiku.find({category: req.params.subCategory}).toArray()
-      res.send(category)
-
-    })
+     
     
+
+    app.get('/category/:subCategory', async (req, res) => {
+      
+      if(req.params.subCategory == "baby_dolls" || req.params.subCategory == "barbie" || req.params.subCategory == "american_girl"){
+        const result = await haiku.find({category: req.params.subCategory}).sort({ createdAt: -1 }).toArray()
+        return res.send(result)
+      }
+      const result = await haiku.find({category: req.params.subCategory }).sort({createdAt: -1}).toArray()
+      res.send(result)
+    })
+
+    //get
+
+    app.get('/toys/:id', async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: new ObjectId(id)}
+      const data = await haiku.findOne(query)
+      res.send(data)
+     })
+
+   
 
     // post
     app.post("/toys", async (req, res) => {
       const toy = req.body;
+      toy.createdAt = new Date();
       const result = await haiku.insertOne(toy);
       res.send(result);
       //    console.log(toy);
     });
 
-    //get
-    app.get('/toys/:id', async (req, res) => {
-       const id = req.params.id;
-       const query = { _id: new ObjectId(id)}
-       const data = await haiku.findOne(query)
-       res.send(data)
-    })
+    
 
 
 
