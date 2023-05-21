@@ -31,6 +31,23 @@ async function run() {
     const database = client.db("ToysDB");
     const haiku = database.collection("toys");
 
+   //////search
+
+    const indexKeys = { name: 1 }
+    const indexOptions = {toyName : 'name'}
+
+    const result = await haiku.createIndex(indexKeys, indexOptions)
+
+    app.get('/toySearchByName/:text', async (req, res) => {
+      const searchText = req.params.text
+      const result = await haiku.find({
+        $or: [
+          {name: { $regex: searchText, $options: "i"}}
+        ]
+      }).toArray()
+      res.send(result)
+    })
+
     // get/read
     app.get("/toys", async (req, res) => {
       const cursor = haiku.find();
