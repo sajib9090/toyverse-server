@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
+require('dotenv').config()
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -8,9 +10,9 @@ app.use(express.json());
 
 // mongodb
 
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.yc3f8jy.mongodb.net/?retryWrites=true&w=majority`;
-const uri = "mongodb+srv://toy-verse:lkL7TE42OLevs8ag@cluster0.yc3f8jy.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.yc3f8jy.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -24,7 +26,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
     // Send a ping to confirm a successful connection
     const database = client.db("ToysDB");
     const haiku = database.collection("toys");
@@ -32,7 +34,7 @@ async function run() {
     // get/read
     app.get("/toys", async (req, res) => {
       const cursor = haiku.find();
-      const result = await cursor.toArray();
+      const result = await cursor.sort({createdAt: -1}).toArray();
       res.send(result);
     });
 
@@ -66,6 +68,12 @@ async function run() {
       const query = {_id: new ObjectId(id)}
       const toy = await haiku.findOne(query)
       res.send(toy)
+    })
+
+    app.get('/alltoys/:email', async(req, res) => {
+      
+      const result = await haiku.find({sellerEmail: req.params.email}).toArray()
+      res.send(result)
     })
 
     // post
