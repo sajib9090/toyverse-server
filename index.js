@@ -26,31 +26,30 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    client.connect();
+    // client.connect();
     // Send a ping to confirm a successful connection
     const database = client.db("ToysDB");
     const haiku = database.collection("toys");
 
    //////search
 
-    const indexKeys = { name: 1 }
-    const indexOptions = {toyName : 'name'}
+    // const indexKeys = { name: 1 }
+    // const indexOptions = {toyName : 'name'}
 
-    const result = await haiku.createIndex(indexKeys, indexOptions)
+    // const result = await haiku.createIndex(indexKeys, indexOptions)
 
     app.get('/toySearchByName/:text', async (req, res) => {
       const searchText = req.params.text
-      const result = await haiku.find({
-        $or: [
-          {name: { $regex: searchText, $options: "i"}}
-        ]
-      }).toArray()
+      const result = await haiku
+      .find({name: { $regex: searchText, $options: "i"}})
+      .toArray()
       res.send(result)
     })
 
+   
     // get/read
     app.get("/toys", async (req, res) => {
-      const cursor = haiku.find();
+      const cursor = haiku.find().limit(20);
       const result = await cursor.sort({createdAt: -1}).toArray();
       res.send(result);
     });
